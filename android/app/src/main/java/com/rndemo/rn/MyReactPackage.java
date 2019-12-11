@@ -1,6 +1,28 @@
 package com.rndemo.rn;
 
-import ReactPackage;
+import com.facebook.react.ReactPackage;
+import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.uimanager.ViewManager;
 
-public interface MyReactPackage extends ReactPackage {
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
+public class MyReactPackage implements ReactPackage {
+
+    @Nonnull
+    @Override
+    public List<NativeModule> createNativeModules(@Nonnull ReactApplicationContext reactContext) {
+        return Arrays.asList(new MyJavaModule(reactContext));
+    }
+
+    @Nonnull
+    @Override
+    public List<ViewManager> createViewManagers(@Nonnull ReactApplicationContext reactContext) {
+        return Arrays.asList();
+    }
+
+
 }

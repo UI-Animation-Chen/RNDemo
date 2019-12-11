@@ -10,6 +10,14 @@ import React from 'react';
 import {TouchableOpacity, Text, View} from 'react-native';
 import VideoViewCompnt from '../native/views/VideoView';
 import {createStackNavigator, createAppContainer} from 'react-navigation';
+import BatchedBridge from 'react-native/Libraries/BatchedBridge/BatchedBridge';
+import MyJavaModule from '../native/modules/MyJavaModule';
+
+BatchedBridge.registerCallableModule('MyJsModule', {
+  myJsMethod: ()=> {
+    console.log('--==-- jsFunc executed.');
+  }
+});
 
 class Player extends React.Component {
 
@@ -76,13 +84,14 @@ class Home extends React.Component {
   play = ()=> {
     this.setState({txt: -this.state.txt});
     // this.props.navigation.push('player');
+    MyJavaModule.callJavaMethod();
   };
 
   render() {
     return (
       <View style={{flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center'}}>
         <TouchableOpacity onPress={this.play}>
-          <Text style={{fontSize: 18}}>play video</Text>
+          <Text style={{fontSize: 18}}>play video, call java method</Text>
         </TouchableOpacity>
         <Inner txt={this.state.txt}/>
       </View>

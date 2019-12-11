@@ -1,27 +1,29 @@
 package com.rndemo.rn;
 
+import android.util.Log;
+
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.rndemo.rn.JsFunction;
 
 import javax.annotation.Nonnull;
 
-public class MyRNModule extends ReactContextBaseJavaModule {
+public class MyJavaModule extends ReactContextBaseJavaModule {
 
-    public MyRNModule(ReactApplicationContext context) {
+    public MyJavaModule(ReactApplicationContext context) {
         super(context);
     }
 
     @Nonnull
     @Override
     public String getName() {
-        return "MyRNModule";
+        return "MyJavaModule";
     }
 
     @ReactMethod
-    public void callNative() {
-        getReactApplicationContext().getCatalystInstance().getJSModule(JsFunction.class).jsFunc();
+    public void callJavaMethod() {
+        Log.d("--==--", "callJavaMethod and in turn call js func");
+        getReactApplicationContext().getCatalystInstance().getJSModule(MyJsModule.class).myJsMethod();
     }
 
 }
