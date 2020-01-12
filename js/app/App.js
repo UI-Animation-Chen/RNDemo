@@ -18,6 +18,12 @@ BatchedBridge.registerCallableModule('MyJsModule', {
     console.log('--==-- jsFunc executed.');
   }
 });
+let lastTimeMS = 0;
+setInterval(() => {
+  let nowMS = new Date().getMilliseconds();
+  console.log("--==-- interval ms: ", nowMS - lastTimeMS);
+  lastTimeMS = nowMS;
+}, 5);
 
 class Player extends React.Component {
 
