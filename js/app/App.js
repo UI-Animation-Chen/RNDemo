@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import {TouchableOpacity, Text, View} from 'react-native';
+import {TouchableOpacity, Text, View, Image} from 'react-native';
 import VideoViewCompnt from '../native/views/VideoView';
 import {createStackNavigator, createAppContainer} from 'react-navigation';
 import BatchedBridge from 'react-native/Libraries/BatchedBridge/BatchedBridge';
@@ -100,11 +100,16 @@ class Home extends React.Component {
 
   render() {
     return (
-      <View style={{flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center'}}>
+      <View style={{flex: 1, backgroundColor: '#eee', alignItems: 'center', justifyContent: 'center'}}>
         <TouchableOpacity onPress={this.play}>
           <Text style={{fontSize: 18}}>play video, call java method</Text>
         </TouchableOpacity>
         <Inner txt={this.state.txt}/>
+        <View style={{margin: 20, borderRadius: 4, backgroundColor: '#fff'}}>
+          <Image style={{width: 168, height: 110, borderTopLeftRadius: 4, borderTopRightRadius: 4}}
+                 source={{uri: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg'}}/>
+          <Text style={{width: 168, fontSize: 14, color: '#202020', padding: 10}}>北京香江大酒店</Text>
+        </View>
       </View>
     );
   }
