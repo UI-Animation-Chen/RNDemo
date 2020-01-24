@@ -12,18 +12,22 @@ import VideoViewCompnt from '../native/views/VideoView';
 import {createStackNavigator, createAppContainer} from 'react-navigation';
 import BatchedBridge from 'react-native/Libraries/BatchedBridge/BatchedBridge';
 import MyJavaModule from '../native/modules/MyJavaModule';
+import AppsEditPage from './AppsEditPage';
 
 BatchedBridge.registerCallableModule('MyJsModule', {
   myJsMethod: ()=> {
     console.log('--==-- jsFunc executed.');
   }
 });
+
+/*
 let lastTimeMS = 0;
 setInterval(() => {
   let nowMS = new Date().getMilliseconds();
   console.log("--==-- interval ms: ", nowMS - lastTimeMS);
   lastTimeMS = nowMS;
 }, 5);
+*/
 
 class Player extends React.Component {
 
@@ -89,8 +93,9 @@ class Home extends React.Component {
 
   play = ()=> {
     this.setState({txt: -this.state.txt});
+    this.props.navigation.push('apps_edit_page');
     // this.props.navigation.push('player');
-    MyJavaModule.callJavaMethod();
+    // MyJavaModule.callJavaMethod();
   };
 
   render() {
@@ -107,7 +112,8 @@ class Home extends React.Component {
 
 const navi = createStackNavigator({
   home: {screen: Home},
-  player: {screen: Player}
+  player: {screen: Player},
+  apps_edit_page: {screen: AppsEditPage}
 });
 
 export default createAppContainer(navi);
