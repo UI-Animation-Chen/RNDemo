@@ -146,7 +146,7 @@ export default class AppsEditPage extends React.PureComponent {
                   alignItems: 'center'}}>
                 <View style={{width: 42, height: 42, borderRadius: 6, overflow: 'hidden'}}>
                     <Image style={{width: 42, height: 42}}
-                        source={require('./selected.png')}/>
+                        source={require('../images/selected.png')}/>
                 </View>
                 <Text style={{fontSize: 12, color: '#595959', marginTop: 6}}>{item.name}</Text>
                 <TouchableOpacity style={{position: 'absolute', top: -16, right: -12, padding: 10}}
@@ -165,7 +165,7 @@ export default class AppsEditPage extends React.PureComponent {
         return (
             <View style={{flexDirection: 'row', padding: 14, paddingTop: 0}}>
                 <View style={{width: 42, height: 42, borderRadius: 6, overflow: 'hidden'}}>
-                    <Image style={{width: 42, height: 42}} source={require('./selected.png')}/>
+                    <Image style={{width: 42, height: 42}} source={require('../images/selected.png')}/>
                 </View>
                 <View style={{marginLeft: 11}}>
                     <Text style={{color: '#202020', fontSize: 14}}>{item.name}</Text>
