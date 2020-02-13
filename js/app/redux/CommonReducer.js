@@ -8,9 +8,9 @@ const initialState = {
 export function reducers(state = initialState, action) {
     switch (action.type) {
         case ACTION_ADD:
-            return {...state, count: state.count+1};
+            return {...state, count: state.count + 1};
         case ACTION_DELETE:
-            return {...state, count: state.count-1};
+            return {...state, count: state.count - 1};
         default:
             return state;
     }

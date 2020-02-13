@@ -11,8 +11,8 @@ export default class HomePage extends React.Component {
 
     play = ()=> {
         // this.setState({txt: -this.state.txt});
-        // this.props.navigation.push('redux_page');
-        this.props.navigation.push('player');
+        this.props.navigation.push('redux_page');
+        // this.props.navigation.push('player');
         // this.props.navigation.push('apps_edit_page');
         // MyJavaModule.callJavaMethod();
     };

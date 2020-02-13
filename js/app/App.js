@@ -9,7 +9,7 @@
 import {createStackNavigator, createAppContainer} from 'react-navigation';
 import BatchedBridge from 'react-native/Libraries/BatchedBridge/BatchedBridge';
 import AppsEditPage from './pages/AppsEditPage';
-import ReduxMainPage from './redux/ReduxMainPage';
+import ReduxMainPage from './redux/RootPage';
 import PlayerPage from './pages/PlayerPage';
 import HomePage from './pages/HomePage';
 
@@ -20,10 +20,30 @@ BatchedBridge.registerCallableModule('MyJsModule', {
 });
 
 const navi = createStackNavigator({
-  home: {screen: HomePage},
-  player: {screen: PlayerPage},
-  apps_edit_page: {screen: AppsEditPage},
-  redux_page: {screen: ReduxMainPage}
+  home: {
+    screen: HomePage,
+    navigationOptions: {
+      title: 'home'
+    }
+  },
+  player: {
+    screen: PlayerPage,
+    navigationOptions: {
+      title: 'player'
+    }
+  },
+  apps_edit_page: {
+    screen: AppsEditPage,
+    navigationOptions: {
+       title: 'apps setting'
+    }
+  },
+  redux_page: {
+    screen: ReduxMainPage,
+    navigationOptions: {
+      title: 'redux page'
+    }
+  }
 });
 
 export default createAppContainer(navi);
