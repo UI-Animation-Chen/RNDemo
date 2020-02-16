@@ -1,17 +1,28 @@
-import { ACTION_ADD, ACTION_DELETE } from "./ActionTypes";
+import { createReducer } from 'reduxsauce';
+import Immutable from 'seamless-immutable';
+import { Types } from './CommonActions';
 
-const initialState = {
+const initialState = Immutable({
     count: 7,
-    str: 'hello, czf.'
+    str: 'hello czf.'
+});
+
+const HANDLES = {
+    [Types.FETCH_DATA]: fetchData,
+    [Types.FETCH_SUCCEEDED]: fetchSucceeded,
+    [Types.FETCH_FAILED]: fetchFailed
 };
 
-export function reducers(state = initialState, action) {
-    switch (action.type) {
-        case ACTION_ADD:
-            return {...state, count: state.count + 1};
-        case ACTION_DELETE:
-            return {...state, count: state.count - 1};
-        default:
-            return state;
-    }
+function fetchData(state, action) {
+    return state;
 }
+
+function fetchSucceeded(state, action) {
+    return state.set('str', action.result);
+}
+
+function fetchFailed(state, action) {
+    return state.set('str', action.err);
+}
+
+export default createReducer(initialState, HANDLES);

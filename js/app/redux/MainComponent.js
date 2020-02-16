@@ -1,7 +1,5 @@
 import React from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
-import store from './GlobalStore';
-import { ACTION_ADD, ACTION_DELETE } from './ActionTypes';
 
 export default class MainComponent extends React.Component {
 
@@ -10,7 +8,7 @@ export default class MainComponent extends React.Component {
     }
 
     onPressed = () => {
-        store.dispatch({ type: ACTION_ADD });
+        this.props.fetchData('cdx');
     }
 
     render() {
@@ -21,6 +19,6 @@ export default class MainComponent extends React.Component {
                 </TouchableOpacity>
             </View>
         );
-    } 
+    }
 
 }
