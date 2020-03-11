@@ -96,7 +96,10 @@
  * 因为是两个线程，canPrepare和gotLocalUrl不能保证调用顺序。
  */
 - (void)gotLocalUrl:(NSNotification *)notification {
-  self.localUrl = (NSString *)notification.object;
+  //self.localUrl = (NSString *)notification.object;
+  //self.localUrl = @"http://www.largesound.com/ashborytour/sound/brobob.mp3";
+  //self.localUrl = @"http://portal-portm.sankuai.com/trip_biz_app/audio_test";
+  self.localUrl = @"http://portal-portm.sankuai.com/trip_biz_app/audio_test.mp3";
   if (self.canPrepare) {
     [self playVideoWithUrl:self.localUrl];
   }
@@ -127,7 +130,23 @@
                       ofObject:(id)object
                         change:(NSDictionary<NSKeyValueChangeKey, id> *)change
                        context:(void *)context {
-  
+  if ([keyPath isEqualToString:@"status"]) {
+    //取出status的新值
+    AVPlayerItemStatus status = [change[NSKeyValueChangeNewKey] intValue];
+    switch (status) {
+      case AVPlayerItemStatusFailed:
+        NSLog(@"--==-- status failed: %@", [[self.playerItem error] description]);
+        break;
+      case AVPlayerItemStatusReadyToPlay:
+        NSLog(@"准好播放了");
+        break;
+      case AVPlayerItemStatusUnknown:
+        NSLog(@"--==-- status unknown: %@", [[self.playerItem error] description]);
+        break;
+      default:
+        break;
+    }
+  }
 }
 
 - (void)playVideo {
