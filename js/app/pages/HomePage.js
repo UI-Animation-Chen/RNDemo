@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, Image } from 'react-native';
 import MyJavaModule from '../../native/modules/MyJavaModule';
   
@@ -10,8 +10,8 @@ export default class HomePage extends React.Component {
     }
 
     play = ()=> {
-        // this.setState({txt: -this.state.txt});
-        this.props.navigation.push('redux_page');
+        this.setState({txt: -this.state.txt});
+        // this.props.navigation.push('redux_page');
         // this.props.navigation.push('player');
         // this.props.navigation.push('apps_edit_page');
         // MyJavaModule.callJavaMethod();
@@ -34,33 +34,18 @@ export default class HomePage extends React.Component {
     }
 }
 
-class Inner extends React.Component {
+// function component
+function Inner(props) {
 
-    constructor(props) {
-        super(props);
-        this.txt = this.props.txt;
-        this.state = {inner: 7};
-    }
-
-    componentWillReceiveProps(nextProps) {
-        console.log('--==--receive :', nextProps);
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        console.log('--==--update :', nextProps, nextState);
-        return true;
-    }
+    const [counter, setCounter] = useState(7);
 
     pressed = () => {
-        this.setState({inner: -this.state.inner});
+        setCounter(counter + 1);
     };
 
-    render() {
-        console.log('--==--inner render');
-        return (
-            <TouchableOpacity onPress={this.pressed}>
-                <Text style={{marginTop: 10}}>{this.props.txt} + {this.state.inner}</Text>
-            </TouchableOpacity>
-        );
-    }
+    return (
+        <TouchableOpacity onPress={pressed}>
+            <Text style={{marginTop: 10}}>{props.txt} + {counter}</Text>
+        </TouchableOpacity>
+    );
 }
