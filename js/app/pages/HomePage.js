@@ -34,12 +34,12 @@ export default class HomePage extends React.Component {
     }
 }
 
+let outCounter = 7;
+
 // function component
 function Inner(props) {
-
-    const [counter, setCounter] = useState(7);
-
-    pressed = () => {
+    const [counter, setCounter] = useState(outCounter--); // useState()中的参数只是第一次起作用。
+    function pressed() {
         setCounter(counter + 1);
     };
 
