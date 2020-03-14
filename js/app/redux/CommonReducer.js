@@ -8,21 +8,17 @@ const initialState = Immutable({
 });
 
 const HANDLES = {
-    [Types.FETCH_DATA]: fetchData,
     [Types.FETCH_SUCCEEDED]: fetchSucceeded,
     [Types.FETCH_FAILED]: fetchFailed
 };
 
-function fetchData(state, action) {
-    return state;
+function fetchSucceeded(state, { result }) {
+    return state.set('str', result);
 }
 
-function fetchSucceeded(state, action) {
-    return state.set('str', action.result);
+function fetchFailed(state, { err }) {
+    return state.set('str', err);
 }
 
-function fetchFailed(state, action) {
-    return state.set('str', action.err);
-}
-
+// 将type和方法关联，再与初始的state关联。
 export default createReducer(initialState, HANDLES);
