@@ -115,7 +115,7 @@ export default class AppsEditPage extends React.PureComponent {
 
     };
 
-    removeTopItem = (index: number) => {
+    removeTopItem = (index) => {
         const sectionIndex = this.sectionData.findIndex((item) => item.title === this.topListData[index].parentTitle);
         if (sectionIndex === -1) {
             return;
@@ -139,7 +139,7 @@ export default class AppsEditPage extends React.PureComponent {
         this.setState({sectionData: [...this.sectionData]});
     };
 
-    getTopItem = (index: number) => {
+    getTopItem = (index) => {
         const item = this.topListData[index];
         return (
             <View key={index} style={{width: 50, margin: this.itemMargin, marginBottom: 15, marginTop: 0,
@@ -210,8 +210,3 @@ export default class AppsEditPage extends React.PureComponent {
     }
 
 }
-
-interface AppInfo {
-    
-}
-
