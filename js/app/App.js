@@ -12,6 +12,7 @@ import AppsEditPage from './pages/AppsEditPage';
 import ReduxMainPage from './redux/RootPage';
 import PlayerPage from './pages/PlayerPage';
 import HomePage from './pages/HomePage';
+import DraggablePage from './pages/DraggablePage';
 
 BatchedBridge.registerCallableModule('MyJsModule', {
   myJsMethod: () => {
@@ -42,6 +43,12 @@ const navi = createStackNavigator({
     screen: ReduxMainPage,
     navigationOptions: {
       title: 'redux page'
+    }
+  },
+  draggable_page: {
+    screen: DraggablePage,
+    navigationOptions: {
+      title: 'draggable page'
     }
   }
 });
