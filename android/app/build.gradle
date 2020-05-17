@@ -118,9 +118,9 @@ android {
     }
     signingConfigs {
         release {
-            keyAlias 'rndemokeystore'
+            keyAlias 'rndemo'
             keyPassword '123456'
-            storeFile file('../rndemo.keystore')
+            storeFile file('../keystores/rndemo.keystore')
             storePassword '123456'
         }
     }
