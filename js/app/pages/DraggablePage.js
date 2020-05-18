@@ -20,6 +20,8 @@ export default class DraggablePage extends React.Component {
                 name: 'item - ' + i
             });
         }
+        data[data.length - 1].disabledDrag = true;
+        data[data.length - 1].disabledReSorted = true;
         return data;
     };
     
