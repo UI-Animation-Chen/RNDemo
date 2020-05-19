@@ -47,6 +47,7 @@ interface IItem<DataType> {
   itemData: DataType
   currentPosition: Animated.AnimatedValueXY
 }
+let hasMoved = false;
 let activeBlockOffset = { x: 0, y: 0 }
 const blockPositions: IPositionOffset[] = []
 const orderMap: {
@@ -145,6 +146,11 @@ export const DraggableGrid = function<DataType extends IBaseItemType>(
   function onHandMove(nativeEvent: GestureResponderEvent, gestureState: PanResponderGestureState) {
     const activeItem = getActiveItem()
     if (!activeItem) return false
+    
+    if (!hasMoved) {
+      hasMoved = true;
+    }
+
     const { moveX, moveY } = gestureState
 
     const xChokeAmount = Math.max(0, activeBlockOffset.x + moveX - (gridLayout.width - blockWidth))
@@ -248,6 +254,7 @@ export const DraggableGrid = function<DataType extends IBaseItemType>(
   function setActiveBlock(itemIndex: number, item: DataType) {
     if (item.disabledDrag) return
 
+    hasMoved = false;
     setPanResponderCapture(true)
     props.onDragWillStart && props.onDragWillStart(item); // added this line
     setActiveItemIndex(itemIndex)
@@ -366,6 +373,12 @@ export const DraggableGrid = function<DataType extends IBaseItemType>(
       <Block
         onPress={onBlockPress.bind(null, itemIndex)}
         onLongPress={setActiveBlock.bind(null, itemIndex, item.itemData)}
+        onPressOut={() => {
+          console.log('--==-- onPressOut', hasMoved)
+          if (!hasMoved) {
+            onHandRelease();
+          }
+        }}
         panHandlers={panResponder.panHandlers}
         style={getBlockStyle(itemIndex)}
         dragStartAnimationStyle={getDragStartAnimation(itemIndex)}

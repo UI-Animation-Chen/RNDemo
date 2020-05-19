@@ -15,6 +15,7 @@ interface BlockProps {
   dragStartAnimationStyle: StyleProp<any>
   onPress?: () => void
   onLongPress: () => void
+  onPressOut: () => void
   panHandlers: GestureResponderHandlers
 }
 
@@ -23,13 +24,14 @@ export const Block: FunctionComponent<BlockProps> = ({
   dragStartAnimationStyle,
   onPress,
   onLongPress,
+  onPressOut,
   children,
   panHandlers,
 }) => {
   return (
     <Animated.View style={[styles.blockContainer, style, dragStartAnimationStyle]} {...panHandlers}>
       <Animated.View>
-        <TouchableWithoutFeedback onPress={onPress} onLongPress={onLongPress}>
+        <TouchableWithoutFeedback onPress={onPress} onLongPress={onLongPress} onPressOut={onPressOut}>
           {children}
         </TouchableWithoutFeedback>
       </Animated.View>
