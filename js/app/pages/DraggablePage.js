@@ -59,6 +59,9 @@ export default class DraggablePage extends React.Component {
                             this.setState({ onDragging: true });
                             console.log('--==-- on drag will start', item);
                         }}
+                        onDragStart={(item) => {
+                            console.log('--==-- on drag start', item);
+                        }}
                         onDragRelease={(data) => {
                             console.log('--==-- on drag release');
                             this.setState({ data, onDragging: false }); // need reset the props data sort after drag release
