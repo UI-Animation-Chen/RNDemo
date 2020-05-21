@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { DraggableGrid } from './drag-grid';
+import { DraggableGrid } from '../components/drag_grid';
 
 export default class DraggablePage extends React.Component {
 
