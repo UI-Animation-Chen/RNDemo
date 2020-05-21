@@ -30,34 +30,44 @@ export interface IDraggableGridProps<DataType extends IBaseItemType> {
   onDragRelease?: (newSortedData: DataType[]) => void;
   onResetSort?: (newSortedData: DataType[]) => void;
 }
+
 interface IPositionOffset {
   x: number;
   y: number;
 }
+
 interface IOrderMapItem {
   order: number;
 }
+
 interface IItem<DataType> {
   key: string;
   itemData: DataType;
   currentPosition: any;
 }
 
-let dragStarted = false;
-let activeBlockOffset = { x: 0, y: 0 }
-const blockPositions: IPositionOffset[] = []
-const orderMap: {
-  [itemKey: string]: IOrderMapItem
-} = {}
-const itemMap: {
-  [itemKey: string]: any
-} = {}
-const items: IItem<any>[] = []
 
 export default class DraggableGrid extends React.Component {
 
+  blockPositions: IPositionOffset[];
+  orderMap: {
+    [itemKey: string]: IOrderMapItem
+  };
+  items: IItem<any>[];
+  itemMap: {
+    [itemKey: string]: any
+  };
+
   constructor(props) {
     super(props);
+
+    this.dragStarted = false;
+    this.activeBlockOffset = { x: 0, y: 0 };
+    this.blockPositions = [];
+    this.orderMap = {};
+    this.itemMap = {};
+    this.items = [];
+
     this.state = {
       blockHeight: 0,
       blockWidth: 0,
@@ -91,14 +101,14 @@ export default class DraggableGrid extends React.Component {
   }
 
   initBlockPositions = () => {
-    items.forEach((item, index) => {
-      blockPositions[index] = this.getBlockPositionByOrder(index);
+    this.items.forEach((item, index) => {
+      this.blockPositions[index] = this.getBlockPositionByOrder(index);
     });
   }
 
   getBlockPositionByOrder = (order: number) => {
-    if (blockPositions[order]) {
-      return blockPositions[order]
+    if (this.blockPositions[order]) {
+      return this.blockPositions[order]
     }
     const { blockWidth, blockHeight } = this.state;
     const { numColumns } = this.props;
@@ -120,7 +130,7 @@ export default class DraggableGrid extends React.Component {
 
   onBlockPress = (itemIndex: number) => {
     const { onItemPress } = this.props;
-    onItemPress && onItemPress(items[itemIndex].itemData)
+    onItemPress && onItemPress(this.items[itemIndex].itemData)
   }
 
   onStartDrag = (nativeEvent: any, gestureState: any) => {
@@ -129,18 +139,18 @@ export default class DraggableGrid extends React.Component {
 
     const { onDragStart } = this.props;
 
-    dragStarted = true;
+    this.dragStarted = true;
     onDragStart && onDragStart(activeItem.itemData)
 
     const { x0, y0, moveX, moveY } = gestureState
-    const activeOrigin = blockPositions[orderMap[activeItem.key].order]
+    const activeOrigin = this.blockPositions[this.orderMap[activeItem.key].order]
     const x = activeOrigin.x - x0
     const y = activeOrigin.y - y0
     activeItem.currentPosition.setOffset({
       x,
       y,
     })
-    activeBlockOffset = {
+    this.activeBlockOffset = {
       x,
       y,
     }
@@ -157,26 +167,26 @@ export default class DraggableGrid extends React.Component {
     const { moveX, moveY } = gestureState
     const { blockWidth, gridLayout, activeItemIndex } = this.state;
 
-    const xChokeAmount = Math.max(0, activeBlockOffset.x + moveX - (gridLayout.width - blockWidth))
-    const xMinChokeAmount = Math.min(0, activeBlockOffset.x + moveX)
+    const xChokeAmount = Math.max(0, this.activeBlockOffset.x + moveX - (gridLayout.width - blockWidth))
+    const xMinChokeAmount = Math.min(0, this.activeBlockOffset.x + moveX)
 
     const dragPosition = {
       x: moveX - xChokeAmount - xMinChokeAmount,
       y: moveY,
     }
-    const originPosition = blockPositions[orderMap[activeItem.key].order]
+    const originPosition = this.blockPositions[this.orderMap[activeItem.key].order]
     const dragPositionToActivePositionDistance = this.getDistance(dragPosition, originPosition)
     activeItem.currentPosition.setValue(dragPosition)
 
     let closetItemIndex = activeItemIndex as number
     let closetDistance = dragPositionToActivePositionDistance
 
-    items.forEach((item, index) => {
+    this.items.forEach((item, index) => {
       if (item.itemData.disabledReSorted) return
       if (index != activeItemIndex) {
         const dragPositionToItemPositionDistance = this.getDistance(
           dragPosition,
-          blockPositions[orderMap[item.key].order],
+          this.blockPositions[this.orderMap[item.key].order],
         )
         if (
           dragPositionToItemPositionDistance < closetDistance &&
@@ -188,9 +198,9 @@ export default class DraggableGrid extends React.Component {
       }
     })
     if (activeItemIndex != closetItemIndex) {
-      const closetOrder = orderMap[items[closetItemIndex].key].order
-      this.resetBlockPositionByOrder(orderMap[activeItem.key].order, closetOrder)
-      orderMap[activeItem.key].order = closetOrder
+      const closetOrder = this.orderMap[this.items[closetItemIndex].key].order
+      this.resetBlockPositionByOrder(this.orderMap[activeItem.key].order, closetOrder)
+      this.orderMap[activeItem.key].order = closetOrder
       const {onResetSort} = this.props;
       onResetSort && onResetSort(this.getSortData())
     }
@@ -215,11 +225,11 @@ export default class DraggableGrid extends React.Component {
     if (activeItemOrder > insertedPositionOrder) {
       for (let i = activeItemOrder - 1; i >= insertedPositionOrder; i--) {
         const key = this.getKeyByOrder(i)
-        const item = itemMap[key]
+        const item = this.itemMap[key]
         if (item && item.disabledReSorted) {
           disabledReSortedItemCount++
         } else {
-          orderMap[key].order += disabledReSortedItemCount + 1
+          this.orderMap[key].order += disabledReSortedItemCount + 1
           disabledReSortedItemCount = 0
           this.moveBlockToBlockOrderPosition(key);
         }
@@ -227,11 +237,11 @@ export default class DraggableGrid extends React.Component {
     } else {
       for (let i = activeItemOrder + 1; i <= insertedPositionOrder; i++) {
         const key = this.getKeyByOrder(i)
-        const item = itemMap[key]
+        const item = this.itemMap[key]
         if (item && item.disabledReSorted) {
           disabledReSortedItemCount++
         } else {
-          orderMap[key].order -= disabledReSortedItemCount + 1
+          this.orderMap[key].order -= disabledReSortedItemCount + 1
           disabledReSortedItemCount = 0
           this.moveBlockToBlockOrderPosition(key)
         }
@@ -240,35 +250,35 @@ export default class DraggableGrid extends React.Component {
   }
 
   moveBlockToBlockOrderPosition = (itemKey: string) => {
-    const itemIndex = findIndex(items, item => item.key === itemKey)
-    items[itemIndex].currentPosition.flattenOffset()
-    Animated.timing(items[itemIndex].currentPosition, {
-      toValue: blockPositions[orderMap[itemKey].order],
+    const itemIndex = findIndex(this.items, item => item.key === itemKey)
+    this.items[itemIndex].currentPosition.flattenOffset()
+    Animated.timing(this.items[itemIndex].currentPosition, {
+      toValue: this.blockPositions[this.orderMap[itemKey].order],
       duration: 200,
     }).start()
   }
 
   getKeyByOrder = (order: number) => {
-    return findKey(orderMap, (item: IOrderMapItem) => item.order === order) as string
+    return findKey(this.orderMap, (item: IOrderMapItem) => item.order === order) as string
   }
 
   getSortData = () => {
     const sortData = [];
-    items.forEach(item => {
-      sortData[orderMap[item.key].order] = item.itemData
+    this.items.forEach(item => {
+      sortData[this.orderMap[item.key].order] = item.itemData
     })
     return sortData
   }
   getDistance = (startOffset: IPositionOffset, endOffset: IPositionOffset) => {
-    const xDistance = startOffset.x + activeBlockOffset.x - endOffset.x
-    const yDistance = startOffset.y + activeBlockOffset.y - endOffset.y
+    const xDistance = startOffset.x + this.activeBlockOffset.x - endOffset.x
+    const yDistance = startOffset.y + this.activeBlockOffset.y - endOffset.y
     return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2))
   }
 
   setActiveBlock = (itemIndex: number, item) => {
     if (item.disabledDrag) return
 
-    dragStarted = false;
+    this.dragStarted = false;
     const { onDragWillStart } = this.props;
     onDragWillStart && onDragWillStart(item); // added this line
     this.setState({
@@ -298,8 +308,8 @@ export default class DraggableGrid extends React.Component {
         width: blockWidth,
         height: blockHeight,
         position: 'absolute',
-        top: items[itemIndex].currentPosition.getLayout().top,
-        left: items[itemIndex].currentPosition.getLayout().left,
+        top: this.items[itemIndex].currentPosition.getLayout().top,
+        left: this.items[itemIndex].currentPosition.getLayout().left,
       },
     ]
   }
@@ -319,7 +329,7 @@ export default class DraggableGrid extends React.Component {
   getActiveItem = () => {
     const { activeItemIndex } = this.state;
     if (activeItemIndex === undefined) return false;
-    return items[activeItemIndex];
+    return this.items[activeItemIndex];
   }
 
   getDefaultDragStartAnimation = () => {
@@ -339,12 +349,12 @@ export default class DraggableGrid extends React.Component {
     }
   }
   addItem = (item, index: number) => {
-    blockPositions.push(this.getBlockPositionByOrder(items.length))
-    orderMap[item.key] = {
+    this.blockPositions.push(this.getBlockPositionByOrder(this.items.length))
+    this.orderMap[item.key] = {
       order: index,
     }
-    itemMap[item.key] = item
-    items.push({
+    this.itemMap[item.key] = item
+    this.items.push({
       key: item.key,
       itemData: item,
       currentPosition: new Animated.ValueXY(this.getBlockPositionByOrder(index)),
@@ -352,29 +362,29 @@ export default class DraggableGrid extends React.Component {
   }
 
   removeItem = (item: IItem<any>) => {
-    const itemIndex = findIndex(items, curItem => curItem.key === item.key)
-    items.splice(itemIndex, 1)
-    blockPositions.pop()
-    delete orderMap[item.key]
+    const itemIndex = findIndex(this.items, curItem => curItem.key === item.key)
+    this.items.splice(itemIndex, 1)
+    this.blockPositions.pop()
+    delete this.orderMap[item.key]
   }
 
   diffData = () => {
     this.props.data.forEach((item, index) => {
-      if (orderMap[item.key]) {
-        if (orderMap[item.key].order != index) {
-          orderMap[item.key].order = index
+      if (this.orderMap[item.key]) {
+        if (this.orderMap[item.key].order != index) {
+          this.orderMap[item.key].order = index
           this.moveBlockToBlockOrderPosition(item.key)
         }
-        const currentItem = items.find(i => i.key === item.key)
+        const currentItem = this.items.find(i => i.key === item.key)
         if (currentItem) {
           currentItem.itemData = item
         }
-        itemMap[item.key] = item
+        this.itemMap[item.key] = item
       } else {
         this.addItem(item, index)
       }
     })
-    const deleteItems = differenceBy(items, this.props.data, 'key')
+    const deleteItems = differenceBy(this.items, this.props.data, 'key')
     deleteItems.forEach(item => {
       this.removeItem(item)
     })
@@ -423,17 +433,17 @@ export default class DraggableGrid extends React.Component {
       onMoveShouldSetPanResponderCapture: () => this.state.panResponderCapture,
       onShouldBlockNativeResponder: () => false,
       onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: this.props.onStartDrag,
+      onPanResponderGrant: this.onStartDrag,
       onPanResponderMove: this.onHandMove,
       onPanResponderRelease: this.onHandRelease,
     });
-    const itemList = items.map((item, itemIndex) => {
+    const itemList = this.items.map((item, itemIndex) => {
       return (
         <Block
           onPress={() => {this.onBlockPress(itemIndex)}}
           onLongPress={() => {this.setActiveBlock(itemIndex, item.itemData)}}
           onPressOut={() => {
-            if (!dragStarted) {
+            if (!this.dragStarted) {
               this.onHandRelease();
             }
           }}
@@ -442,7 +452,7 @@ export default class DraggableGrid extends React.Component {
           dragStartAnimationStyle={this.getDragStartAnimation(itemIndex)}
           key={item.key}
         >
-          {this.props.renderItem(item.itemData, orderMap[item.key].order)}
+          {this.props.renderItem(item.itemData, this.orderMap[item.key].order)}
         </Block>
       )
     })
