@@ -288,7 +288,8 @@ export default class DraggableGrid extends React.Component<
         this.items[itemIndex].currentPosition.flattenOffset();
         Animated.timing(this.items[itemIndex].currentPosition, {
             toValue: this.blockPositions[this.orderMap[itemKey].order],
-            duration: 200
+            duration: 200,
+            useNativeDriver: false
         }).start();
     };
 
@@ -334,7 +335,8 @@ export default class DraggableGrid extends React.Component<
             this.state.dragStartAnimatedValue.setValue(1);
             Animated.timing(this.state.dragStartAnimatedValue, {
                 toValue: 1.2,
-                duration: 100
+                duration: 100,
+                useNativeDriver: false
             }).start();
         }
     };
