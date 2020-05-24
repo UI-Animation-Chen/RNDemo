@@ -130,12 +130,9 @@ export default class DraggableGrid extends React.Component<
         const { blockWidth, blockHeight } = this.state;
         const { numColumns } = this.props;
         const columnOnRow = order % numColumns;
-        const y = blockHeight * Math.floor(order / numColumns);
         const x = columnOnRow * blockWidth;
-        return {
-            x,
-            y
-        };
+        const y = blockHeight * Math.floor(order / numColumns);
+        return { x, y };
     };
 
     resetGridHeight = () => {
@@ -165,18 +162,9 @@ export default class DraggableGrid extends React.Component<
         ];
         const x = activeOrigin.x - x0;
         const y = activeOrigin.y - y0;
-        activeItem.currentPosition.setOffset({
-            x,
-            y
-        });
-        this.activeBlockOffset = {
-            x,
-            y
-        };
-        activeItem.currentPosition.setValue({
-            x: moveX,
-            y: moveY
-        });
+        activeItem.currentPosition.setOffset({ x, y });
+        this.activeBlockOffset = { x, y };
+        activeItem.currentPosition.setValue({ x: moveX, y: moveY });
     };
 
     onHandMove = (nativeEvent: any, gestureState: any) => {
@@ -205,9 +193,10 @@ export default class DraggableGrid extends React.Component<
         );
         activeItem.currentPosition.setValue(dragPosition);
 
-        let closetItemIndex = activeItemIndex as number;
-        let closetDistance = dragPositionToActivePositionDistance;
+        let closestItemIndex = activeItemIndex as number;
+        let closestDistance = dragPositionToActivePositionDistance;
 
+        // find out the closest item
         this.items.forEach((item, index) => {
             if (item.itemData.disabledReSorted) return;
             if (index !== activeItemIndex) {
@@ -216,16 +205,16 @@ export default class DraggableGrid extends React.Component<
                     this.blockPositions[this.orderMap[item.key].order]
                 );
                 if (
-                    dragPositionToItemPositionDistance < closetDistance &&
+                    dragPositionToItemPositionDistance < closestDistance &&
                     dragPositionToItemPositionDistance < blockWidth
                 ) {
-                    closetItemIndex = index;
-                    closetDistance = dragPositionToItemPositionDistance;
+                    closestItemIndex = index;
+                    closestDistance = dragPositionToItemPositionDistance;
                 }
             }
         });
-        if (activeItemIndex !== closetItemIndex) {
-            const closetOrder = this.orderMap[this.items[closetItemIndex].key]
+        if (activeItemIndex !== closestItemIndex) {
+            const closetOrder = this.orderMap[this.items[closestItemIndex].key]
                 .order;
             this.resetBlockPositionByOrder(
                 this.orderMap[activeItem.key].order,
@@ -389,10 +378,7 @@ export default class DraggableGrid extends React.Component<
             shadowColor: '#000000',
             shadowOpacity: 0.2,
             shadowRadius: 6,
-            shadowOffset: {
-                width: 1,
-                height: 1
-            }
+            shadowOffset: { width: 1, height: 1 }
         };
     };
 
