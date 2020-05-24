@@ -41,7 +41,7 @@ interface IOrderMapItem {
 interface IItem<DataType> {
     key: string;
     itemData: DataType;
-    currentPosition: any;
+    currentPosition: Animated.AnimatedValueXY;
 }
 
 interface State {
@@ -49,7 +49,7 @@ interface State {
     blockHeight: number;
     gridHeight: any;
     hadInitBlockSize: boolean;
-    dragStartAnimatedValue: any;
+    dragStartAnimatedValue: Animated.Value;
     gridLayout: {
         x: number;
         y: number;
@@ -307,6 +307,7 @@ export default class DraggableGrid extends React.Component<
         });
         return sortData;
     };
+
     getDistance = (
         startOffset: IPositionOffset,
         endOffset: IPositionOffset
@@ -323,7 +324,7 @@ export default class DraggableGrid extends React.Component<
 
         this.dragStarted = false;
         const { onDragWillStart } = this.props;
-        onDragWillStart && onDragWillStart(item); // added this line
+        onDragWillStart && onDragWillStart(item);
         this.setState({
             panResponderCapture: true,
             activeItemIndex: itemIndex
@@ -394,6 +395,7 @@ export default class DraggableGrid extends React.Component<
             }
         };
     };
+
     addItem = (item, index: number) => {
         this.blockPositions.push(
             this.getBlockPositionByOrder(this.items.length)
@@ -463,18 +465,6 @@ export default class DraggableGrid extends React.Component<
         this.resetGridHeight();
     }
 
-    // useEffect(() => {
-    //   startDragStartAnimation()
-    // }, [activeItemIndex])
-    // useEffect(() => {
-    //   if (hadInitBlockSize) {
-    //     initBlockPositions()
-    //   }
-    // }, [gridLayout])
-    // useEffect(() => {
-    //   resetGridHeight()
-    // })
-
     render() {
         if (this.state.hadInitBlockSize) {
             this.diffData();
@@ -501,6 +491,7 @@ export default class DraggableGrid extends React.Component<
                         this.setActiveBlock(itemIndex, item.itemData);
                     }}
                     onPressOut={() => {
+                        // 如果没有开始拖动，由这里回调release。否则由panHandlers回调。
                         if (!this.dragStarted) {
                             this.onHandRelease();
                         }
