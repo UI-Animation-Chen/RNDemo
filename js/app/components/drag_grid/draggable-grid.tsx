@@ -172,18 +172,9 @@ export default class DraggableGrid extends React.Component<
         if (!activeItem) return false;
 
         const { moveX, moveY } = gestureState;
-        const { blockWidth, gridLayout, activeItemIndex } = this.state;
+        const { blockWidth, activeItemIndex } = this.state;
 
-        const xChokeAmount = Math.max(
-            0,
-            this.activeBlockOffset.x + moveX - (gridLayout.width - blockWidth)
-        );
-        const xMinChokeAmount = Math.min(0, this.activeBlockOffset.x + moveX);
-
-        const dragPosition = {
-            x: moveX - xChokeAmount - xMinChokeAmount,
-            y: moveY
-        };
+        const dragPosition = { x: moveX, y: moveY };
         const originPosition = this.blockPositions[
             this.orderMap[activeItem.key].order
         ];
@@ -214,13 +205,13 @@ export default class DraggableGrid extends React.Component<
             }
         });
         if (activeItemIndex !== closestItemIndex) {
-            const closetOrder =
+            const closestOrder =
                 this.orderMap[this.items[closestItemIndex].key].order;
             this.resetBlockPositionByOrder(
                 this.orderMap[activeItem.key].order,
-                closetOrder
+                closestOrder
             );
-            this.orderMap[activeItem.key].order = closetOrder;
+            this.orderMap[activeItem.key].order = closestOrder;
             const { onResetSort } = this.props;
             onResetSort && onResetSort(this.getSortData());
         }
