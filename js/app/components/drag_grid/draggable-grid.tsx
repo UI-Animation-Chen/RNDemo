@@ -1,5 +1,5 @@
 import React from 'react';
-import { PanResponder, Animated, StyleSheet } from 'react-native';
+import { PanResponder, Animated } from 'react-native';
 import Block from './block';
 import { findKey, findIndex, differenceBy } from './utils';
 
@@ -214,8 +214,8 @@ export default class DraggableGrid extends React.Component<
             }
         });
         if (activeItemIndex !== closestItemIndex) {
-            const closetOrder = this.orderMap[this.items[closestItemIndex].key]
-                .order;
+            const closetOrder =
+                this.orderMap[this.items[closestItemIndex].key].order;
             this.resetBlockPositionByOrder(
                 this.orderMap[activeItem.key].order,
                 closetOrder
@@ -371,9 +371,7 @@ export default class DraggableGrid extends React.Component<
     getDefaultDragStartAnimation = () => {
         return {
             transform: [
-                {
-                    scale: this.state.dragStartAnimatedValue
-                }
+                { scale: this.state.dragStartAnimatedValue }
             ],
             shadowColor: '#000000',
             shadowOpacity: 0.2,
@@ -386,9 +384,7 @@ export default class DraggableGrid extends React.Component<
         this.blockPositions.push(
             this.getBlockPositionByOrder(this.items.length)
         );
-        this.orderMap[item.key] = {
-            order: index
-        };
+        this.orderMap[item.key] = { order: index };
         this.itemMap[item.key] = item;
         this.items.push({
             key: item.key,
@@ -500,7 +496,6 @@ export default class DraggableGrid extends React.Component<
         return (
             <Animated.View
                 style={[
-                    styles.draggableGrid,
                     this.props.style,
                     {
                         height: this.state.gridHeight
@@ -513,11 +508,3 @@ export default class DraggableGrid extends React.Component<
         );
     }
 }
-
-const styles = StyleSheet.create({
-    draggableGrid: {
-        flex: 1,
-        flexDirection: 'row',
-        flexWrap: 'wrap'
-    }
-});

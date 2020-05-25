@@ -52,7 +52,10 @@ export default class DraggablePage extends React.Component {
                         numColumns={4}
                         renderItem={this.renderItem}
                         data={this.state.data}
-                        onItemPress={() => {
+                        onItemPress={(item) => {
+                            const deleteIndex = this.state.data.findIndex(i => i.key === item.key);
+                            this.state.data.splice(deleteIndex, 1);
+                            this.setState(this.state.data);
                             console.log('--==-- on item press');
                         }}
                         onDragWillStart={(item) => {
@@ -73,7 +76,13 @@ export default class DraggablePage extends React.Component {
                         numColumns={4}
                         renderItem={this.renderItem}
                         data={this.state.data}
-                        onItemPress={() => {
+                        onItemPress={(item) => {
+                            const addIndex = this.state.data.findIndex(i => i.key === item.key);
+                            this.state.data.splice(addIndex, 0, {
+                                key: Date.now() + '',
+                                name: 'add' + Date.now()
+                            });
+                            this.setState(this.state.data);
                             console.log('--==-- on item press');
                         }}
                         onDragWillStart={(item) => {
