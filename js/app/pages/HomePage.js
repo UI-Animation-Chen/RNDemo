@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, Image } from 'react-native';
+import { View, TouchableOpacity, Text, Image, FlatList } from 'react-native';
 import MyJavaModule from '../../native/modules/MyJavaModule';
   
 export default class HomePage extends React.Component {
@@ -24,14 +24,21 @@ export default class HomePage extends React.Component {
         return (
             <View style={{flex: 1, backgroundColor: '#eee', alignItems: 'center', justifyContent: 'center'}}>
                 <TouchableOpacity onPress={this.play}>
-                <Text style={{fontSize: 18}}>play video</Text>
+                    <Text style={{fontSize: 18}}>play video</Text>
                 </TouchableOpacity>
                 <Inner txt={this.state.txt}/>
-                <View style={{margin: 20, borderRadius: 4, backgroundColor: '#fff'}}>
-                <Image style={{width: 168, height: 110, borderTopLeftRadius: 4, borderTopRightRadius: 4}}
-                       source={{uri: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg'}}/>
-                <Text style={{width: 168, fontSize: 14, color: '#202020', padding: 10}}>北京香江大酒店</Text>
+                <View style={{margin: 20, borderRadius: 6, backgroundColor: '#fff', overflow: 'hidden'}}>
+                    <Image style={{width: 168, height: 110}}
+                        source={{uri: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg'}}/>
+                    <Text style={{width: 168, fontSize: 14, color: '#202020', padding: 10}}>北京香江大酒店</Text>
                 </View>
+                <FlatList
+                    data={[1, 2, 3]}
+                    renderItem={({item}) => {
+                        console.warn('--==--', item);
+                        return <Inner txt={item}/>;
+                    }}
+                />
             </View>
         );
     }
@@ -48,7 +55,7 @@ function Inner(props) {
 
     return (
         <TouchableOpacity onPress={pressed}>
-            <Text style={{marginTop: 10}}>{props.txt} + {counter}</Text>
+            <Text style={{marginTop: 10}}>{props.txt} + {counter} + {outCounter}</Text>
         </TouchableOpacity>
     );
 }
