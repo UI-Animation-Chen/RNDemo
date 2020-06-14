@@ -419,7 +419,6 @@ export default class DraggableGrid extends React.Component<
     };
 
     componentDidMount() {
-        this.startDragStartAnimation();
         if (this.state.hadInitBlockSize) {
             this.initBlockPositions();
         }

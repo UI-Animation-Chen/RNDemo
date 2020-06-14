@@ -35,8 +35,7 @@ export default class HomePage extends React.Component {
                 <FlatList
                     data={[1, 2, 3]}
                     renderItem={({item}) => {
-                        console.warn('--==--', item);
-                        return <Inner txt={item}/>;
+                        return <Inner key={'key' + item} txt={item}/>;
                     }}
                 />
             </View>
