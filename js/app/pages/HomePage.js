@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, Image, FlatList } from 'react-native';
 import MyJavaModule from '../../native/modules/MyJavaModule';
   
-export default class HomePage extends React.Component {
+export default class HomePage extends React.PureComponent {
   
     constructor(props) {
         super(props);
@@ -10,13 +10,14 @@ export default class HomePage extends React.Component {
     }
 
     play = ()=> {
-        this.setState({txt: -this.state.txt});
+        // this.setState({txt: -this.state.txt});
         // this.props.navigation.push('redux_page', {
         //     isFromHome: true
         // });
         // this.props.navigation.push('player');
         // this.props.navigation.push('apps_edit_page');
-        this.props.navigation.push('draggable_page');
+        // this.props.navigation.push('draggable_page');
+        this.props.navigation.push('excel_page');
         // MyJavaModule.callJavaMethod();
     };
 
@@ -38,6 +39,7 @@ export default class HomePage extends React.Component {
                         return <Inner key={'key' + item} txt={item}/>;
                     }}
                 />
+                <Inner1 />
             </View>
         );
     }
@@ -57,4 +59,11 @@ function Inner(props) {
             <Text style={{marginTop: 10}}>{props.txt} + {counter} + {outCounter}</Text>
         </TouchableOpacity>
     );
+}
+
+class Inner1 extends React.Component {
+    render() {
+        console.log('--==-- inner1');
+        return <Text>inner1</Text>
+    }
 }
