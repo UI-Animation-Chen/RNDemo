@@ -14,6 +14,7 @@ import PlayerPage from './pages/PlayerPage';
 import HomePage from './pages/HomePage';
 import DraggablePage from './pages/DraggablePage';
 import ExcelPage from './pages/ExcelPage';
+import RecycleScrollviewPage from './pages/RecycleScrollviewPage';
 
 BatchedBridge.registerCallableModule('MyJsModule', {
   myJsMethod: () => {
@@ -56,6 +57,12 @@ const navi = createStackNavigator({
     screen: ExcelPage,
     navigationOptions: {
       title: 'excel page'
+    }
+  },
+  recycle_scrollview_page: {
+    screen: RecycleScrollviewPage,
+    navigationOptions: {
+      title: 'recycle scrollview page'
     }
   }
 });

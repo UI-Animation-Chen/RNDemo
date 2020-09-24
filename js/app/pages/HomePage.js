@@ -17,7 +17,8 @@ export default class HomePage extends React.PureComponent {
         // this.props.navigation.push('player');
         // this.props.navigation.push('apps_edit_page');
         // this.props.navigation.push('draggable_page');
-        this.props.navigation.push('excel_page');
+        // this.props.navigation.push('excel_page');
+        this.props.navigation.push('recycle_scrollview_page');
         // MyJavaModule.callJavaMethod();
     };
 
