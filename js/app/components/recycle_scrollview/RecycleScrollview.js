@@ -1,56 +1,75 @@
 import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ToastAndroid } from 'react-native';
 
 export default class RecycleScrollview extends React.PureComponent {
 
     constructor(props) {
         super(props);
         this.listData = [];
+        this.itemW = 100;
         this.itemH = 60;
+        this.offsetX = 0;
         this.offsetY = 0;
-        this.renderingItemCount = 0;
-        this.triggerIndex = Math.floor(this.renderingItemCount / 2);
-        this.swapCount = Math.floor(this.renderingItemCount / 3);
-        this.upperBlankH = 0;
-        this.belowBlankH = 0;
+        this.renderingItemCountVertical = 0;
+        this.triggerIndexVertical = 0;
+        this.swapCountVertical = 0;
+        this.renderingItemCountHorizontal = 0;
+        this.triggerIndexHorizontal = 0;
+        this.swapCountHorizontal = 0;
+        this.topBlank = 0;
+        this.bottomBlank = 0;
+        this.leftBlank = 0;
+        this.rightBlank = 0;
         this.renderingViews = [];
 
         this.state = {
-            upperBlankH: this.upperBlankH, belowBlankH: this.belowBlankH,
-            containerH: 0
+            topBlank: this.topBlank, bottomBlank: this.bottomBlank,
+            leftBlank: this.leftBlank, rightBlank: this.rightBlank,
+            containerW: 0, containerH: 0
         };
 
-        this.prepareData(50);
+        this.prepareData(100);
     }
 
     prepareData = (listDataLen) => {
         this.listData = [];
-        for (let i = 0; i < listDataLen; i++) {
-            this.listData.push('data-' + i);
-        }
-        setTimeout(() => {
-            for (let i = listDataLen; i < listDataLen + 30; i++) {
-                this.listData.push('data-' + i);
+        for (let row = 0; row < listDataLen; row++) {
+            const rowData = [];
+            for (let column = 0; column < listDataLen - 98; column++) {
+                rowData.push(row + ', ' + column);
             }
-            this.updateConfig(this.state.containerH);
-        }, 3000);
+            this.listData.push(rowData);
+        }
+        // setTimeout(() => {
+        //     for (let i = listDataLen; i < listDataLen + 30; i++) {
+        //         this.listData.push('data-' + i);
+        //     }
+        //     const { containerW, containerH } = this.state;
+        //     this.updateConfig(containerW, containerH);
+        // }, 3000);
     };
 
-    updateConfig = containerH_ => {
-        this.renderingItemCount = Math.ceil(containerH_ / this.itemH) * 3;
-        this.triggerIndex = Math.floor(this.renderingItemCount / 2);
-        this.swapCount = Math.floor(this.renderingItemCount / 3);
-        this.belowBlankH = (this.listData.length - this.renderingItemCount) * this.itemH - this.upperBlankH;
-        this.belowBlankH = this.belowBlankH < 0 ? 0 : this.belowBlankH;
+    updateConfig = (containerW_, containerH_) => {
+        this.renderingItemCountVertical = Math.ceil(containerH_ / this.itemH) * 3;
+        this.triggerIndexVertical = Math.floor(this.renderingItemCountVertical / 2);
+        this.swapCountVertical = Math.floor(this.renderingItemCountVertical / 3);
+        this.bottomBlank = (this.listData.length - this.renderingItemCountVertical) * this.itemH - this.topBlank;
+        this.bottomBlank = this.bottomBlank < 0 ? 0 : this.bottomBlank;
+
+        this.renderingItemCountHorizontal = Math.ceil(containerW_ / this.itemW) * 3;
+        this.triggerIndexHorizontal = Math.floor(this.renderingItemCountHorizontal / 2);
+        this.swapCountHorizontal = Math.floor(this.renderingItemCountHorizontal / 3);
+        this.rightBlank = (this.listData[0].length - this.renderingItemCountHorizontal) * this.itemW - this.leftBlank;
+        this.rightBlank = this.rightBlank < 0 ? 0 : this.rightBlank;
 
         this.increaseRenderingViewsIfNeed();
 
-        const { upperBlankH, belowBlankH, containerH } = this.state;
-        if (upperBlankH !== this.upperBlankH ||
-            belowBlankH !== this.belowBlankH || containerH !== containerH_) {
+        const { leftBlank, bottomBlank, containerW, containerH } = this.state;
+        if (leftBlank !== this.leftBlank || bottomBlank !== this.bottomBlank ||
+                containerW !== containerW_ || containerH !== containerH_) {
             this.setState({
-                upperBlankH: this.upperBlankH, belowBlankH: this.belowBlankH,
-                containerH: containerH_
+                rightBlank: this.rightBlank, bottomBlank: this.bottomBlank,
+                containerW: containerW_, containerH: containerH_
             });
         } else {
             this.forceUpdate();
@@ -58,53 +77,136 @@ export default class RecycleScrollview extends React.PureComponent {
     };
 
     increaseRenderingViewsIfNeed = () => {
-        if (this.renderingViews.length >= this.renderingItemCount) {
+        if (this.renderingViews.length >= this.renderingItemCountVertical &&
+            this.renderingViews[0].length >= this.renderingItemCountHorizontal) {
             return;
         }
+        let realRenderItemCountVertical = this.renderingItemCountVertical;
+        if (this.renderingItemCountVertical > this.listData.length) {
+            realRenderItemCountVertical = this.listData.length;
+        }
+        let realRenderItemCountHorizontal = this.renderingItemCountHorizontal;
+        if (this.renderingItemCountHorizontal > this.listData[0].length) {
+            realRenderItemCountHorizontal = this.listData[0].length;
+        }
         this.renderingViews = [];
-        let realRenderItemCount = this.renderingItemCount;
-        if (this.renderingItemCount > this.listData.length) {
-            realRenderItemCount = this.listData.length;
-        }
-        for (let i = 0; i < realRenderItemCount; i++) {
-            this.renderingViews.push(this.renderItem(i));
+        for (let i = 0; i < realRenderItemCountVertical; i++) {
+            this.renderingViews.push(this.renderRows(i, 0, realRenderItemCountHorizontal));
         }
     };
 
-    onScroll = ({ nativeEvent }) => {
-        this.scrollViews(Math.abs(nativeEvent.contentOffset.y));
+    getListStartIndexVercital = () => {
+        const firstVisibleIndex = Math.floor(this.offsetY / this.itemH);
+        const firstVisibleIndexInRendering = Math.floor((this.offsetY - this.topBlank) / this.itemH);
+        return firstVisibleIndex - firstVisibleIndexInRendering;
     };
 
-    // 不使用state变量
-    scrollViews = offsetY => {
+    getListStartIndexHorizontal = () => {
+        const firstVisibleIndex = Math.floor(this.offsetX / this.itemW);
+        const firstVisibleIndexInRendering = Math.floor((this.offsetX - this.leftBlank) / this.itemW);
+        return firstVisibleIndex - firstVisibleIndexInRendering;
+    };
+
+    onScrollHorizontal = ({ nativeEvent }) => {
+        this.scrollViewsHorizontal(Math.abs(nativeEvent.contentOffset.x));
+    };
+
+    onScrollVertical = ({ nativeEvent }) => {
+        this.scrollViewsVertical(Math.abs(nativeEvent.contentOffset.y));
+    };
+
+    // 内部没使用state变量
+    scrollViewsHorizontal = offsetX => {
+        let isScrollLeft = this.offsetX < offsetX;
+        this.offsetX = offsetX;
+        const firstVisibleIndex = Math.floor(this.offsetX / this.itemW);
+        const firstVisibleIndexInRendering = Math.floor((this.offsetX - this.leftBlank) / this.itemW);
+        const rowStart = this.getListStartIndexVercital();
+        if (isScrollLeft) { // scroll left
+            if (firstVisibleIndexInRendering >= this.triggerIndexHorizontal) {
+                const timeStart = Date.now();
+                let realSwapCount = this.swapCountHorizontal;
+                if (this.rightBlank < this.swapCountHorizontal * this.itemW) {
+                    realSwapCount = this.rightBlank / this.itemW;
+                    if (realSwapCount <= 0) {
+                        return;
+                    }
+                }
+                for (let row = 0; row < this.renderingViews.length; row++) {
+                    const tempRenderingViews = this.renderingViews[row].slice(realSwapCount);
+                    for (let i = 0; i < realSwapCount; i++) {
+                        const listIndex = firstVisibleIndex +
+                            (this.renderingItemCountHorizontal - firstVisibleIndexInRendering) + i;
+                        tempRenderingViews.push(this.renderItem(rowStart + row, listIndex));
+                    }
+                    this.renderingViews[row] = tempRenderingViews;
+                }
+                this.leftBlank += this.itemW * realSwapCount;
+                this.rightBlank -= this.itemW * realSwapCount;
+                this.setState({ leftBlank: this.leftBlank, rightBlank: this.rightBlank });
+                console.log('--==-- horizontal', Date.now() - timeStart);
+            }
+        } else {
+            if (firstVisibleIndexInRendering <= this.triggerIndexHorizontal - this.swapCountHorizontal) {
+                const timeStart = Date.now();
+                let realSwapCount = this.swapCountHorizontal;
+                if (this.leftBlank < this.swapCountHorizontal * this.itemW) {
+                    realSwapCount = this.leftBlank / this.itemW;
+                    if (realSwapCount <= 0) {
+                        return;
+                    }
+                }
+                for (let row = 0; row < this.renderingViews.length; row++) {
+                    const tempRenderingViews = [];
+                    for (let i = realSwapCount; i > 0; i--) {
+                        const listIndex = firstVisibleIndex - firstVisibleIndexInRendering - i;
+                        tempRenderingViews.push(this.renderItem(rowStart + row, listIndex));
+                    }
+                    this.renderingViews[row] = tempRenderingViews.concat(
+                        this.renderingViews[row].slice(0, this.renderingItemCountHorizontal - realSwapCount));
+                }
+                this.leftBlank -= this.itemW * realSwapCount;
+                this.rightBlank += this.itemW * realSwapCount;
+                this.setState({ leftBlank: this.leftBlank, rightBlank: this.rightBlank });
+                console.log('--==-- horizontal', Date.now() - timeStart);
+            }
+        }
+    };
+
+    // 内部没使用state变量
+    scrollViewsVertical = offsetY => {
         let isScrollUp = this.offsetY < offsetY;
         this.offsetY = offsetY;
         const firstVisibleIndex = Math.floor(this.offsetY / this.itemH);
-        const firstVisibleIndexInRendering = Math.floor((this.offsetY - this.upperBlankH) / this.itemH);
+        const firstVisibleIndexInRendering = Math.floor((this.offsetY - this.topBlank) / this.itemH);
+        const columnStart = this.getListStartIndexHorizontal();
+        const columnEnd = columnStart + this.renderingViews[0].length;
         if (isScrollUp) { // scroll up
-            if (firstVisibleIndexInRendering >= this.triggerIndex) {
-                let realSwapCount = this.swapCount;
-                if (this.belowBlankH < this.swapCount * this.itemH) {
-                    realSwapCount = this.belowBlankH / this.itemH;
+            if (firstVisibleIndexInRendering >= this.triggerIndexVertical) {
+                let realSwapCount = this.swapCountVertical;
+                if (this.bottomBlank < this.swapCountVertical * this.itemH) {
+                    realSwapCount = this.bottomBlank / this.itemH;
                     if (realSwapCount <= 0) {
                         return;
                     }
                 }
                 const tempRenderingViews = this.renderingViews.slice(realSwapCount);
                 for (let i = 0; i < realSwapCount; i++) {
-                    const listIndex = firstVisibleIndex + (this.renderingItemCount - firstVisibleIndexInRendering) + i;
-                    tempRenderingViews.push(this.renderItem(listIndex));
+                    const listIndex = firstVisibleIndex +
+                        (this.renderingItemCountVertical - firstVisibleIndexInRendering) + i;
+                    tempRenderingViews.push(this.renderRows(listIndex, columnStart, columnEnd));
                 }
                 this.renderingViews = tempRenderingViews;
-                this.upperBlankH += this.itemH * realSwapCount;
-                this.belowBlankH -= this.itemH * realSwapCount;
-                this.setState({ upperBlankH: this.upperBlankH, belowBlankH: this.belowBlankH });
+                
+                this.topBlank += this.itemH * realSwapCount;
+                this.bottomBlank -= this.itemH * realSwapCount;
+                this.setState({ topBlank: this.topBlank, bottomBlank: this.bottomBlank });
             }
         } else {
-            if (firstVisibleIndexInRendering <= this.triggerIndex - this.swapCount) {
-                let realSwapCount = this.swapCount;
-                if (this.upperBlankH < this.swapCount * this.itemH) {
-                    realSwapCount = this.upperBlankH / this.itemH;
+            if (firstVisibleIndexInRendering <= this.triggerIndexVertical - this.swapCountVertical) {
+                let realSwapCount = this.swapCountVertical;
+                if (this.topBlank < this.swapCountVertical * this.itemH) {
+                    realSwapCount = this.topBlank / this.itemH;
                     if (realSwapCount <= 0) {
                         return;
                     }
@@ -112,31 +214,41 @@ export default class RecycleScrollview extends React.PureComponent {
                 const tempRenderingViews = [];
                 for (let i = realSwapCount; i > 0; i--) {
                     const listIndex = firstVisibleIndex - firstVisibleIndexInRendering - i;
-                    tempRenderingViews.push(this.renderItem(listIndex));
+                    tempRenderingViews.push(this.renderRows(listIndex, columnStart, columnEnd));
                 }
                 this.renderingViews = tempRenderingViews.concat(
-                    this.renderingViews.slice(0, this.renderingItemCount - realSwapCount));
-                this.upperBlankH -= this.itemH * realSwapCount;
-                this.belowBlankH += this.itemH * realSwapCount;
-                this.setState({ upperBlankH: this.upperBlankH, belowBlankH: this.belowBlankH });
+                    this.renderingViews.slice(0, this.renderingItemCountVertical - realSwapCount));
+                this.topBlank -= this.itemH * realSwapCount;
+                this.bottomBlank += this.itemH * realSwapCount;
+                this.setState({ topBlank: this.topBlank, bottomBlank: this.bottomBlank });
             }
         }
     };
 
-    renderUpperBlank = () => {
-        const { upperBlankH } = this.state;
-        return (<View key={'upper_blank_view'} style={{ width: 1, height: upperBlankH }}/>);
+    renderRows = (rowIndex, startColumn, endColumn) => {
+        const row = [];
+        for (let i = startColumn; i < endColumn; i++) {
+            row.push(this.renderItem(rowIndex, i));
+        }
+        return row;
     };
 
-    renderBelowBlank = () => {
-        const { belowBlankH } = this.state;
-        return (<View key={'below_blank_view'} style={{ width: 1, height: belowBlankH }}/>);
-    };
-
-    renderItem = (index) => {
+    renderItem = (row, column) => {
         return (
-            <Text key={this.listData[index]} style={{ height: this.itemH, padding: 10, borderBottomWidth: 1,
-                borderBottomColor: '#333' }}>{this.listData[index]}</Text>
+            <TouchableOpacity key={this.listData[row][column]} onPress={() => {
+                ToastAndroid.show(row + ', ' + column, ToastAndroid.SHORT);
+            }}>
+                <Text
+                    style={{
+                        width: this.itemW, height: this.itemH, padding: 10,
+                        borderBottomWidth: 1, borderBottomColor: '#333',
+                        borderRightWidth: 1, borderRightColor: '#333',
+                        textAlignVertical: 'center', textAlign: 'center'
+                    }}
+                >
+                    {this.listData[row][column]}
+                </Text>
+            </TouchableOpacity>
         );
     };
 
@@ -145,19 +257,33 @@ export default class RecycleScrollview extends React.PureComponent {
     };
 
     render() {
+        const rows= [];
+        for (let i = 0; i < this.renderingViews.length; i++) {
+            rows.push(
+                <View key={'' + i} style={{ flexDirection: 'row' }}>
+                    {this.renderingViews[i]}
+                </View>
+            );
+        }
+        const { leftBlank, rightBlank, topBlank, bottomBlank } = this.state;
         return (
             <View style={{ flex: 1 }} onLayout={({ nativeEvent }) => {
-                this.updateConfig(nativeEvent.layout.height);
+                this.updateConfig(nativeEvent.layout.width, nativeEvent.layout.height);
             }}>
                 {
                     (this.renderingViews && this.renderingViews.length > 0) ?
-                        <ScrollView
-                            onScroll={this.onScroll}
-                        >
-                            {this.renderUpperBlank()}
-                            {this.renderingViews}
-                            {this.renderBelowBlank()}
+                    <ScrollView horizontal={true} onScroll={this.onScrollHorizontal}>
+                        <ScrollView onScroll={this.onScrollVertical}>
+                            <View
+                                style={{
+                                    paddingLeft: leftBlank, paddingRight: rightBlank,
+                                    paddingTop: topBlank, paddingBottom: bottomBlank
+                                }}
+                            >
+                                {rows}
+                            </View>
                         </ScrollView>
+                    </ScrollView>
                     : null
                 }
             </View>
