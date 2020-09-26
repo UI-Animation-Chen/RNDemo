@@ -5,7 +5,7 @@ import RecycleScrollview from '../components/recycle_scrollview/RecycleScrollvie
 export default class RecycleScrollviewPage extends React.PureComponent {
     render() {
         return (
-            <RecycleScrollview />
+            <RecycleScrollview {...this.props}/>
         );
     }
 }

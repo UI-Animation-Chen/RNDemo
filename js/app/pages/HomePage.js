@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, Image, FlatList } from 'react-native';
+import { TextInput } from 'react-native-gesture-handler';
 import MyJavaModule from '../../native/modules/MyJavaModule';
   
 export default class HomePage extends React.PureComponent {
@@ -7,6 +8,8 @@ export default class HomePage extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {txt: 7};
+        this.row = 10;
+        this.column = 10;
     }
 
     play = ()=> {
@@ -18,15 +21,37 @@ export default class HomePage extends React.PureComponent {
         // this.props.navigation.push('apps_edit_page');
         // this.props.navigation.push('draggable_page');
         // this.props.navigation.push('excel_page');
-        this.props.navigation.push('recycle_scrollview_page');
+        this.props.navigation.push('recycle_scrollview_page', {
+            row: this.row, column: this.column
+        });
         // MyJavaModule.callJavaMethod();
+    };
+
+    _keyExtractor = (item, index) => {
+        return item + '';
     };
 
     render() {
         return (
             <View style={{flex: 1, backgroundColor: '#eee', alignItems: 'center', justifyContent: 'center'}}>
+                <TextInput
+                    defaultValue='10'
+                    keyboardType='number-pad'
+                    style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                    onChangeText={text => {
+                        this.row = parseInt(text);
+                    }}
+                />
+                <TextInput
+                    defaultValue='10'
+                    keyboardType='number-pad'
+                    style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                    onChangeText={text => {
+                        this.column = parseInt(text);
+                    }}
+                />
                 <TouchableOpacity onPress={this.play}>
-                    <Text style={{fontSize: 18}}>play video</Text>
+                    <Text style={{fontSize: 18, padding: 10}}>play video</Text>
                 </TouchableOpacity>
                 <Inner txt={this.state.txt}/>
                 <View style={{margin: 20, borderRadius: 6, backgroundColor: '#fff', overflow: 'hidden'}}>
@@ -36,6 +61,7 @@ export default class HomePage extends React.PureComponent {
                 </View>
                 <FlatList
                     data={[1, 2, 3]}
+                    keyExtractor={this._keyExtractor}
                     renderItem={({item}) => {
                         return <Inner key={'key' + item} txt={item}/>;
                     }}

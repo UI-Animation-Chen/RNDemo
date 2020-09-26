@@ -28,14 +28,16 @@ export default class RecycleScrollview extends React.PureComponent {
             containerW: 0, containerH: 0
         };
 
-        this.prepareData(50);
+        const row = this.props.navigation.getParam('row');
+        const column = this.props.navigation.getParam('column');
+        this.prepareData(row, column);
     }
 
-    prepareData = (listDataLen) => {
+    prepareData = (row_, column_) => {
         this.listData = [];
-        for (let row = 0; row < listDataLen; row++) {
+        for (let row = 0; row < row_; row++) {
             const rowData = [];
-            for (let column = 0; column < listDataLen; column++) {
+            for (let column = 0; column < column_; column++) {
                 rowData.push(row + ', ' + column);
             }
             this.listData.push(rowData);
@@ -115,14 +117,16 @@ export default class RecycleScrollview extends React.PureComponent {
         this.scrollViewsVertical(Math.abs(nativeEvent.contentOffset.y));
     };
 
-    // 内部没使用state变量
     scrollViewsHorizontal = offsetX => {
         let isScrollLeft = this.offsetX < offsetX;
         this.offsetX = offsetX;
-        const firstVisibleIndex = Math.floor(this.offsetX / this.itemW);
-        const firstVisibleIndexInRender = Math.floor((this.offsetX - this.leftBlank) / this.itemW);
+        if ((isScrollLeft && this.rightBlank <= 0) || (!isScrollLeft && this.leftBlank <= 0)) {
+            return;
+        }
         const rowStart = this.getListStartIndexVercital();
         if (isScrollLeft) { // scroll left
+            const firstVisibleIndex = Math.floor(this.offsetX / this.itemW);
+            const firstVisibleIndexInRender = Math.floor((this.offsetX - this.leftBlank) / this.itemW);
             if (firstVisibleIndexInRender >= this.triggerIndexHorizontal) {
                 let realSwapCount = this.swapCountHorizontal;
                 const wantSwapCount = firstVisibleIndexInRender -
@@ -136,10 +140,10 @@ export default class RecycleScrollview extends React.PureComponent {
                 if (realSwapCount < this.renderItemCountHorizontal) {
                     for (let row = 0; row < this.renderViews.length; row++) {
                         const tempRenderViews = this.renderViews[row].slice(realSwapCount);
+                        const listIndexBase = firstVisibleIndex +
+                            (this.renderItemCountHorizontal - firstVisibleIndexInRender);
                         for (let i = 0; i < realSwapCount; i++) {
-                            const listIndex = firstVisibleIndex +
-                                (this.renderItemCountHorizontal - firstVisibleIndexInRender) + i;
-                            tempRenderViews.push(this.renderItem(rowStart + row, listIndex));
+                            tempRenderViews.push(this.renderItem(rowStart + row, listIndexBase + i));
                         }
                         this.renderViews[row] = tempRenderViews;
                     }
@@ -157,24 +161,43 @@ export default class RecycleScrollview extends React.PureComponent {
                 this.rightBlank -= this.itemW * realSwapCount;
                 this.setState({ leftBlank: this.leftBlank, rightBlank: this.rightBlank });
             }
-        } else {
-            if (firstVisibleIndexInRender <= this.triggerIndexHorizontal - this.swapCountHorizontal) {
+        } else { // scroll right
+            // 模拟将屏幕左右倒置，向左滑动的算法
+            const offsetX_ = this.listData[0].length * this.itemW - this.state.containerW - this.offsetX;
+            const firstVisibleIndex = Math.floor(offsetX_ / this.itemW);
+            const firstVisibleIndexInRender = Math.floor((offsetX_ - this.rightBlank) / this.itemW);
+            if (firstVisibleIndexInRender >= this.triggerIndexHorizontal) {
                 let realSwapCount = this.swapCountHorizontal;
-                if (this.leftBlank < this.swapCountHorizontal * this.itemW) {
+                const wantSwapCount = firstVisibleIndexInRender -
+                                      (this.triggerIndexHorizontal - this.swapCountHorizontal);
+                if (wantSwapCount * this.itemW <= this.leftBlank) { // enough space
+                    realSwapCount = wantSwapCount;
+                } else {
                     realSwapCount = this.leftBlank / this.itemW;
-                    if (realSwapCount <= 0) {
-                        return;
+                }
+
+                if (realSwapCount < this.renderItemCountHorizontal) {
+                    for (let row = 0; row < this.renderViews.length; row++) {
+                        const tempRenderViews = [];
+                        const listIndexBase = (this.listData[0].length - 1) -
+                            (firstVisibleIndex + (this.renderItemCountHorizontal - firstVisibleIndexInRender));
+                        for (let i = realSwapCount - 1; i >= 0; i--) {
+                            tempRenderViews.push(this.renderItem(rowStart + row, listIndexBase - i));
+                        }
+                        this.renderViews[row] = tempRenderViews.concat(this.renderViews[row].slice(
+                            0, this.renderItemCountHorizontal - realSwapCount));
+                    }
+                } else {
+                    for (let row = 0; row < this.renderViews.length; row++) {
+                        this.renderViews[row] = [];
+                        const listIndexBase = (this.listData[0].length - 1) -
+                            (firstVisibleIndex - (firstVisibleIndexInRender - realSwapCount));
+                        for (let i = this.renderItemCountHorizontal - 1; i >= 0; i--) {
+                            this.renderViews[row].push(this.renderItem(rowStart + row, listIndexBase - i));
+                        }
                     }
                 }
-                for (let row = 0; row < this.renderViews.length; row++) {
-                    const tempRenderViews = [];
-                    for (let i = realSwapCount; i > 0; i--) {
-                        const listIndex = firstVisibleIndex - firstVisibleIndexInRender - i;
-                        tempRenderViews.push(this.renderItem(rowStart + row, listIndex));
-                    }
-                    this.renderViews[row] = tempRenderViews.concat(
-                        this.renderViews[row].slice(0, this.renderItemCountHorizontal - realSwapCount));
-                }
+
                 this.leftBlank -= this.itemW * realSwapCount;
                 this.rightBlank += this.itemW * realSwapCount;
                 this.setState({ leftBlank: this.leftBlank, rightBlank: this.rightBlank });
@@ -182,18 +205,17 @@ export default class RecycleScrollview extends React.PureComponent {
         }
     };
 
-    // 内部没使用state变量
     scrollViewsVertical = offsetY => {
         let isScrollUp = this.offsetY < offsetY;
         this.offsetY = offsetY;
         if ((isScrollUp && this.bottomBlank <= 0) || (!isScrollUp && this.topBlank <= 0)) {
             return;
         }
-        const firstVisibleIndex = Math.floor(this.offsetY / this.itemH);
-        const firstVisibleIndexInRender = Math.floor((this.offsetY - this.topBlank) / this.itemH);
         const columnStart = this.getListStartIndexHorizontal();
         const columnEnd = columnStart + this.renderViews[0].length;
         if (isScrollUp) { // scroll up
+            const firstVisibleIndex = Math.floor(this.offsetY / this.itemH);
+            const firstVisibleIndexInRender = Math.floor((this.offsetY - this.topBlank) / this.itemH);
             if (firstVisibleIndexInRender >= this.triggerIndexVertical) {
                 let realSwapCount = this.swapCountVertical;
                 const wantSwapCount = firstVisibleIndexInRender -
@@ -224,22 +246,39 @@ export default class RecycleScrollview extends React.PureComponent {
                 this.bottomBlank -= this.itemH * realSwapCount;
                 this.setState({ topBlank: this.topBlank, bottomBlank: this.bottomBlank });
             }
-        } else {
-            if (firstVisibleIndexInRender <= this.triggerIndexVertical - this.swapCountVertical) {
+        } else { // scroll down
+            // 模拟将屏幕上下倒置，向上滑动的算法
+            const offsetY_ = this.listData.length * this.itemH - this.state.containerH - this.offsetY;
+            const firstVisibleIndex = Math.floor(offsetY_ / this.itemH);
+            const firstVisibleIndexInRender = Math.floor((offsetY_ - this.bottomBlank) / this.itemH);
+            if (firstVisibleIndexInRender >= this.triggerIndexVertical) {
                 let realSwapCount = this.swapCountVertical;
-                if (this.topBlank < this.swapCountVertical * this.itemH) {
+                const wantSwapCount = firstVisibleIndexInRender -
+                                      (this.triggerIndexVertical - this.swapCountVertical);
+                if (wantSwapCount * this.itemH <= this.topBlank) { // enough space
+                    realSwapCount = wantSwapCount;
+                } else {
                     realSwapCount = this.topBlank / this.itemH;
-                    if (realSwapCount <= 0) {
-                        return;
+                }
+
+                if (realSwapCount < this.renderItemCountVertical) {
+                    const tempRenderViews = [];
+                    const listIndexBase = (this.listData.length - 1) -
+                        (firstVisibleIndex + (this.renderItemCountVertical - firstVisibleIndexInRender));
+                    for (let i = realSwapCount - 1; i >= 0; i--) {
+                        tempRenderViews.push(this.renderRows(listIndexBase - i, columnStart, columnEnd));
+                    }
+                    this.renderViews = tempRenderViews.concat(this.renderViews.slice(
+                        0, this.renderItemCountVertical - realSwapCount));
+                } else {
+                    this.renderViews = [];
+                    const listIndexBase = (this.listData.length - 1) -
+                        (firstVisibleIndex - (firstVisibleIndexInRender - realSwapCount));
+                    for (let i = this.renderItemCountVertical - 1; i >= 0; i--) {
+                        this.renderViews.push(this.renderRows(listIndexBase - i, columnStart, columnEnd));
                     }
                 }
-                const tempRenderViews = [];
-                for (let i = realSwapCount; i > 0; i--) {
-                    const listIndex = firstVisibleIndex - firstVisibleIndexInRender - i;
-                    tempRenderViews.push(this.renderRows(listIndex, columnStart, columnEnd));
-                }
-                this.renderViews = tempRenderViews.concat(
-                    this.renderViews.slice(0, this.renderItemCountVertical - realSwapCount));
+                
                 this.topBlank -= this.itemH * realSwapCount;
                 this.bottomBlank += this.itemH * realSwapCount;
                 this.setState({ topBlank: this.topBlank, bottomBlank: this.bottomBlank });
@@ -288,7 +327,7 @@ export default class RecycleScrollview extends React.PureComponent {
     };
 
     updateItemState = (row, column) => {
-        this.listData[row][column] = 'hahaha';
+        this.listData[row][column] = Date.now() + '';
         const { renderRow, renderColumn } = this.data2renderIndex(row, column);
         this.renderViews[renderRow][renderColumn] = this.renderItem(row, column)
         this.forceUpdate();
