@@ -1,5 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ToastAndroid } from 'react-native';
+import {
+    View, Text, TouchableOpacity, ScrollView,
+    ToastAndroid, Switch
+} from 'react-native';
 
 export default class RecycleScrollview extends React.PureComponent {
 
@@ -7,7 +10,7 @@ export default class RecycleScrollview extends React.PureComponent {
         super(props);
         this.listData = [];
         this.itemW = 100;
-        this.itemH = 60;
+        this.itemH = 160;
         this.offsetX = 0;
         this.offsetY = 0;
         this.renderItemCountVertical = 0;
@@ -31,7 +34,18 @@ export default class RecycleScrollview extends React.PureComponent {
         const row = this.props.navigation.getParam('row');
         const column = this.props.navigation.getParam('column');
         this.prepareData(row, column);
+        this.setTime__();
     }
+
+    setTime__ = () => {
+        // this.timeStart = Date.now();
+    };
+
+    printTime__ = (desc) => {
+        // const time = Date.now();
+        // console.log('--==--' + desc, time - this.timeStart);
+        // this.timeStart = time;
+    };
 
     prepareData = (row_, column_) => {
         this.listData = [];
@@ -128,6 +142,7 @@ export default class RecycleScrollview extends React.PureComponent {
             const firstVisibleIndex = Math.floor(this.offsetX / this.itemW);
             const firstVisibleIndexInRender = Math.floor((this.offsetX - this.leftBlank) / this.itemW);
             if (firstVisibleIndexInRender >= this.triggerIndexHorizontal) {
+                this.setTime__();
                 let realSwapCount = this.swapCountHorizontal;
                 const wantSwapCount = firstVisibleIndexInRender -
                                       (this.triggerIndexHorizontal - this.swapCountHorizontal);
@@ -147,6 +162,7 @@ export default class RecycleScrollview extends React.PureComponent {
                         }
                         this.renderViews[row] = tempRenderViews;
                     }
+                    this.printTime__('h-slow');
                 } else {
                     for (let row = 0; row < this.renderViews.length; row++) {
                         this.renderViews[row] = [];
@@ -155,6 +171,7 @@ export default class RecycleScrollview extends React.PureComponent {
                             this.renderViews[row].push(this.renderItem(rowStart + row, listIndexBase + i));
                         }
                     }
+                    this.printTime__('h-fast');
                 }
 
                 this.leftBlank += this.itemW * realSwapCount;
@@ -167,6 +184,7 @@ export default class RecycleScrollview extends React.PureComponent {
             const firstVisibleIndex = Math.floor(offsetX_ / this.itemW);
             const firstVisibleIndexInRender = Math.floor((offsetX_ - this.rightBlank) / this.itemW);
             if (firstVisibleIndexInRender >= this.triggerIndexHorizontal) {
+                this.setTime__();
                 let realSwapCount = this.swapCountHorizontal;
                 const wantSwapCount = firstVisibleIndexInRender -
                                       (this.triggerIndexHorizontal - this.swapCountHorizontal);
@@ -187,6 +205,7 @@ export default class RecycleScrollview extends React.PureComponent {
                         this.renderViews[row] = tempRenderViews.concat(this.renderViews[row].slice(
                             0, this.renderItemCountHorizontal - realSwapCount));
                     }
+                    this.printTime__('h-slow');
                 } else {
                     for (let row = 0; row < this.renderViews.length; row++) {
                         this.renderViews[row] = [];
@@ -196,6 +215,7 @@ export default class RecycleScrollview extends React.PureComponent {
                             this.renderViews[row].push(this.renderItem(rowStart + row, listIndexBase - i));
                         }
                     }
+                    this.printTime__('h-fast');
                 }
 
                 this.leftBlank -= this.itemW * realSwapCount;
@@ -217,6 +237,7 @@ export default class RecycleScrollview extends React.PureComponent {
             const firstVisibleIndex = Math.floor(this.offsetY / this.itemH);
             const firstVisibleIndexInRender = Math.floor((this.offsetY - this.topBlank) / this.itemH);
             if (firstVisibleIndexInRender >= this.triggerIndexVertical) {
+                this.setTime__();
                 let realSwapCount = this.swapCountVertical;
                 const wantSwapCount = firstVisibleIndexInRender -
                                       (this.triggerIndexVertical - this.swapCountVertical);
@@ -234,12 +255,14 @@ export default class RecycleScrollview extends React.PureComponent {
                         tempRenderViews.push(this.renderRows(listIndexBase + i, columnStart, columnEnd));
                     }
                     this.renderViews = tempRenderViews;
+                    this.printTime__('v-slow');
                 } else {
                     this.renderViews = [];
                     const listIndexBase = firstVisibleIndex - (firstVisibleIndexInRender - realSwapCount);
                     for (let i = 0; i < this.renderItemCountVertical; i++) {
                         this.renderViews.push(this.renderRows(listIndexBase + i, columnStart, columnEnd));
                     }
+                    this.printTime__('v-fast');
                 }
                 
                 this.topBlank += this.itemH * realSwapCount;
@@ -252,6 +275,7 @@ export default class RecycleScrollview extends React.PureComponent {
             const firstVisibleIndex = Math.floor(offsetY_ / this.itemH);
             const firstVisibleIndexInRender = Math.floor((offsetY_ - this.bottomBlank) / this.itemH);
             if (firstVisibleIndexInRender >= this.triggerIndexVertical) {
+                this.setTime__();
                 let realSwapCount = this.swapCountVertical;
                 const wantSwapCount = firstVisibleIndexInRender -
                                       (this.triggerIndexVertical - this.swapCountVertical);
@@ -270,6 +294,7 @@ export default class RecycleScrollview extends React.PureComponent {
                     }
                     this.renderViews = tempRenderViews.concat(this.renderViews.slice(
                         0, this.renderItemCountVertical - realSwapCount));
+                    this.printTime__('v-slow');
                 } else {
                     this.renderViews = [];
                     const listIndexBase = (this.listData.length - 1) -
@@ -277,6 +302,7 @@ export default class RecycleScrollview extends React.PureComponent {
                     for (let i = this.renderItemCountVertical - 1; i >= 0; i--) {
                         this.renderViews.push(this.renderRows(listIndexBase - i, columnStart, columnEnd));
                     }
+                    this.printTime__('v-fast');
                 }
                 
                 this.topBlank -= this.itemH * realSwapCount;
@@ -294,22 +320,35 @@ export default class RecycleScrollview extends React.PureComponent {
         return row;
     };
 
+    onItemPressed = (row, column) => {
+        ToastAndroid.show(row + ', ' + column, ToastAndroid.SHORT);
+        this.updateItemState(row, column);
+    };
+
     renderItem = (row, column) => {
+        const isEnabled = (row + column) % 2 !== 0;
         return (
             <TouchableOpacity key={this.listData[row][column]} onPress={() => {
-                ToastAndroid.show(row + ', ' + column, ToastAndroid.SHORT);
-                this.updateItemState(row, column);
+                this.onItemPressed(row, column);
             }}>
-                <Text
+                <View
                     style={{
-                        width: this.itemW, height: this.itemH, padding: 10,
+                        width: this.itemW, height: this.itemH,
+                        alignItems: 'center', justifyContent: 'center',
                         borderBottomWidth: 1, borderBottomColor: '#333',
-                        borderRightWidth: 1, borderRightColor: '#333',
-                        textAlignVertical: 'center', textAlign: 'center'
-                    }}
-                >
-                    {this.listData[row][column]}
-                </Text>
+                        borderRightWidth: 1, borderRightColor: '#333'
+                    }}>
+                    <Text>
+                        {this.listData[row][column]}
+                    </Text>
+                    <Switch
+                        trackColor={{ false: "#767577", true: "#81b0ff" }}
+                        thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={() => {}}
+                        value={isEnabled}
+                    />
+                </View>
             </TouchableOpacity>
         );
     };
@@ -337,7 +376,12 @@ export default class RecycleScrollview extends React.PureComponent {
         return item;
     };
 
+    onLayout_ = ({ nativeEvent }) => {
+        this.updateConfig(nativeEvent.layout.width, nativeEvent.layout.height);
+    };
+
     render() {
+        this.printTime__('render');
         const rows= [];
         for (let i = 0; i < this.renderViews.length; i++) {
             rows.push(
@@ -348,13 +392,18 @@ export default class RecycleScrollview extends React.PureComponent {
         }
         const { leftBlank, rightBlank, topBlank, bottomBlank } = this.state;
         return (
-            <View style={{ flex: 1 }} onLayout={({ nativeEvent }) => {
-                this.updateConfig(nativeEvent.layout.width, nativeEvent.layout.height);
-            }}>
+            <View style={{ flex: 1 }} onLayout={this.onLayout_}>
                 {
                     (this.renderViews && this.renderViews.length > 0) ?
-                    <ScrollView horizontal={true} onScroll={this.onScrollHorizontal}>
-                        <ScrollView onScroll={this.onScrollVertical}>
+                    <ScrollView
+                        horizontal={true}
+                        removeClippedSubviews={false}
+                        onScroll={this.onScrollHorizontal}
+                    >
+                        <ScrollView
+                            removeClippedSubviews={false}
+                            onScroll={this.onScrollVertical}
+                        >
                             <View
                                 style={{
                                     paddingLeft: leftBlank, paddingRight: rightBlank,
