@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, Image, FlatList } from 'react-native';
-import { TextInput } from 'react-native-gesture-handler';
+import { View, TouchableOpacity, Text, Image, FlatList, TextInput } from 'react-native';
 import MyJavaModule from '../../native/modules/MyJavaModule';
   
 export default class HomePage extends React.PureComponent {
