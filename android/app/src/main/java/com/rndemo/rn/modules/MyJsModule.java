@@ -1,4 +1,4 @@
-package com.rndemo.rn;
+package com.rndemo.rn.modules;
 
 import com.facebook.react.bridge.JavaScriptModule;
 

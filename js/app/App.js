@@ -15,6 +15,7 @@ import HomePage from './pages/HomePage';
 import DraggablePage from './pages/DraggablePage';
 import ExcelPage from './pages/ExcelPage';
 import RecycleScrollviewPage from './pages/RecycleScrollviewPage';
+import MyViewGroupPage from './pages/MyViewGroupPage';
 
 BatchedBridge.registerCallableModule('MyJsModule', {
   myJsMethod: () => {
@@ -63,6 +64,12 @@ const navi = createStackNavigator({
     screen: RecycleScrollviewPage,
     navigationOptions: {
       title: 'recycle scrollview page'
+    }
+  },
+  my_viewgroup_page: {
+    screen: MyViewGroupPage,
+    navigationOptions: {
+      title: 'my viewgroup page'
     }
   }
 });

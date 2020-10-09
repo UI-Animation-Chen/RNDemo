@@ -4,6 +4,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
+import com.rndemo.rn.modules.MyJavaModule;
+import com.rndemo.rn.views.MyViewGroupManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +23,7 @@ public class MyReactPackage implements ReactPackage {
     @Nonnull
     @Override
     public List<ViewManager> createViewManagers(@Nonnull ReactApplicationContext reactContext) {
-        return Arrays.asList();
+        return Arrays.asList(new MyViewGroupManager());
     }
 
 

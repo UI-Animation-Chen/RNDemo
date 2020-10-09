@@ -5,7 +5,7 @@
 import React from 'react';
 import {requireNativeComponent} from 'react-native';
 
-let VideoView = requireNativeComponent("VideoView", VideoViewCompnt);
+const VideoView = requireNativeComponent("VideoView", VideoViewCompnt);
 
 export default class VideoViewCompnt extends React.Component {
   render() {
